@@ -5,9 +5,9 @@ services:
     image: mysql:5.7
     container_name: mysql57
     environment:
-      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=root
     ports:
-      - "3307:3306"
+      - "3306:3306"
   reverse-proxy:
     image: traefik:v2.2
     command:

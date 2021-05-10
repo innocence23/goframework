@@ -1,12 +1,12 @@
-.PHONY: mysql migrate-create createdb dropdb migrateup migratedown test server
+.PHONY: mysql migrate-create createdb dropdb migrateup migratedown genemodel test server
 
 USER = root
-PWD = secret
-PORT = 3307
+PWD = root
+PORT = 3306
 DB = project
 
 mysql57:
-	docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=secret -d mysql:5.7
+	docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=$(PWD) -d mysql:5.7
 
 migrate-create:
 	@echo "---Creating migration files---"
@@ -23,6 +23,9 @@ migrateup:
 
 migratedown:
 	migrate -path migration -database "mysql://$(USER):$(PWD)@tcp(localhost:$(PORT))/$(DB)" -verbose down
+
+genemodel:
+	model-generator -u=$(USER) -p=$(PWD) -d=$(DB)  -dir=./model
 
 test:
 	go test -v -cover ./...
