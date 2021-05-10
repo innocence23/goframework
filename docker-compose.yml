@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+    ports:
+      - "3307:3306"
+  reverse-proxy:
+    image: traefik:v2.2
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  project:
+    build:
+      context: ./
+      target: builder
+    image: project
+    # env_file: .env.dev
+    expose:
+      - "8080"
+    depends_on:
+      - db
+      # - redis-account
+      - reverse-proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.project.rule=Host(`goframework.test`)"
+      #- "traefik.http.routers.project.rule=Host(`goframework.test`) && PathPrefix(`/api/account`)"
+    environment:
+      - ENV=dev
+    volumes:
+      - ./:/app
+    command: reflex -r "\.go$$" -s -- sh -c "go run ./"
