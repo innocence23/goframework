@@ -1,19 +1,28 @@
-.PHONY: mysql createdb dropdb migrateup migratedown test server
+.PHONY: mysql migrate-create createdb dropdb migrateup migratedown test server
 
-mysql:
-	docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=secret -d mysql:8
+USER = root
+PWD = secret
+PORT = 3307
+DB = project
+
+mysql57:
+	docker run --name mysql8 -p 3306:3306  -e MYSQL_ROOT_PASSWORD=secret -d mysql:5.7
+
+migrate-create:
+	@echo "---Creating migration files---"
+	migrate create -ext sql -dir ./migration -seq init_table
 
 createdb:
-	docker exec -it postgres12 createdb --username=root --owner=root simple_bank
+	docker exec -it mysql57 mysql -u$(USER) -p$(PWD) -e 'create database $(DB)'
 
 dropdb:
-	docker exec -it postgres12 dropdb simple_bank
+	docker exec -it mysql57 mysql -u$(USER) -p$(PWD) -e 'drop database $(DB)'
 
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate -path migration -database "mysql://$(USER):$(PWD)@tcp(localhost:$(PORT))/$(DB)" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate -path migration -database "mysql://$(USER):$(PWD)@tcp(localhost:$(PORT))/$(DB)" -verbose down
 
 test:
 	go test -v -cover ./...
