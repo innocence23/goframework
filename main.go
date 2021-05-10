@@ -3,12 +3,15 @@ package main
 import (
 	"fmt"
 	"goframework/database"
+	"goframework/lib"
 	"goframework/model"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	//初始化配置
+	lib.LoadConfig(".")
 
 	//初始化数据库
 	database.InitDB()

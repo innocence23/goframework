@@ -11,5 +11,7 @@ var err error
 func InitDB() {
 	// db docker容器名
 	dsn := "root:root@tcp(db:3306)/project?charset=utf8mb4&parseTime=True&loc=Local"
+	//dsn := lib.Config.DBSource
+
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 }

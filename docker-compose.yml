@@ -8,6 +8,8 @@ services:
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - "3306:3306"
+    volumes:
+      - "mysqldata:/var/lib/mysql"
   reverse-proxy:
     image: traefik:v2.2
     command:
@@ -25,7 +27,7 @@ services:
       target: builder
     image: project
     container_name: project
-    # env_file: .env.dev
+    env_file: dev.env
     expose:
       - "8080"
     depends_on:
@@ -41,3 +43,7 @@ services:
     volumes:
       - ./:/app
     command: reflex -r "\.go$$" -s -- sh -c "go run ./"
+
+volumes:
+  mysqldata:
+  redisdata:
