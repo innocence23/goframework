@@ -10,3 +10,18 @@
 - 初始化配置文件viper	（github.com/spf13/viper）
 - 连接数据库 gorm
 
+### curd
+- 自动生成model
+- controller-service-respository-model
+
+
+
+### todo
+- validate
+- log
+- response
+- error
+- password
+- jwt token
+- wire
+- test
