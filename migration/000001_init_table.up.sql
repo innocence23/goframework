@@ -6,7 +6,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `blogs` (
+CREATE TABLE `posts` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `tag_id` int(10) unsigned DEFAULT '0' COMMENT '标签ID',
   `title` varchar(100) DEFAULT '' COMMENT '文章标题',

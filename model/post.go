@@ -1,6 +1,6 @@
 package model
 
-type Blog struct {
+type Post struct {
 	ID         uint   `json:"id"`
 	TagID      int    `json:"tag_id"`
 	Title      string `json:"title"`

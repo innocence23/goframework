@@ -15,10 +15,7 @@ type Env struct {
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
-var (
-	Config Env
-	err    error
-)
+var Config Env
 
 func LoadConfig(path string) {
 	viper.AddConfigPath(path)
@@ -26,7 +23,7 @@ func LoadConfig(path string) {
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatal("init env error")
 	}

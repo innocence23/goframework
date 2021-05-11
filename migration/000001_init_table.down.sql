@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS `users`;
 
-DROP TABLE IF EXISTS `blogs`;
+DROP TABLE IF EXISTS `posts`;
 
 DROP TABLE IF EXISTS `products`;
 
