@@ -2,9 +2,11 @@ package api
 
 import (
 	"fmt"
+	"goframework/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 )
 
 type GetPostParam struct {
@@ -13,8 +15,6 @@ type GetPostParam struct {
 
 func (s *Server) GetPost(c *gin.Context) {
 	var param GetPostParam
-
-	fmt.Println(param)
 	if err := c.ShouldBindUri(&param); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -24,185 +24,100 @@ func (s *Server) GetPost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-// func (s *Server) CreatePost(w http.ResponseWriter, r *http.Request) {
+type GetPostsParam struct {
+	Offset int `form:"offset"`
+	Limit  int `form:"limit"`
+}
 
-// 	body, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-// 	post := models.Post{}
-// 	err = json.Unmarshal(body, &post)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-// 	post.Prepare()
-// 	err = post.Validate()
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-// 	uid, err := auth.ExtractTokenID(r)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-// 	if uid != post.AuthorID {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
-// 		return
-// 	}
-// 	postCreated, err := post.SavePost(server.DB)
-// 	if err != nil {
-// 		formattedError := formaterror.FormatError(err.Error())
-// 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
-// 		return
-// 	}
-// 	w.Header().Set("Location", fmt.Sprintf("%s%s/%d", r.Host, r.URL.Path, postCreated.ID))
-// 	responses.JSON(w, http.StatusCreated, postCreated)
-// }
+func (s *Server) GetPosts(c *gin.Context) {
+	var param GetPostsParam
+	if err := c.ShouldBind(&param); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	result, err := s.PostService.GetByPage(param.Limit, param.Offset)
+	fmt.Println(result, err)
 
-// func (s *Server) GetPosts(w http.ResponseWriter, r *http.Request) {
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": result})
+}
 
-// 	post := models.Post{}
+type CreatePostParam struct {
+	Title   string `json:"title"`
+	Desc    string `json:"desc"`
+	Content string `json:"content"`
+}
 
-// 	posts, err := post.FindAllPosts(server.DB)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-// 	responses.JSON(w, http.StatusOK, posts)
-// }
+func (s *Server) CreatePost(c *gin.Context) {
+	var param CreatePostParam
+	if err := c.ShouldBind(&param); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	post := &model.Post{
+		Title:   param.Title,
+		Desc:    param.Desc,
+		Content: param.Content,
+		Status:  1,
+	}
+	result, err := s.PostService.Create(post)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": result})
+}
 
-// func (s *Server) GetPost(w http.ResponseWriter, r *http.Request) {
+type UpdatePostParam struct {
+	Title   string `json:"title"`
+	Desc    string `json:"desc"`
+	Content string `json:"content"`
+}
 
-// 	vars := mux.Vars(r)
-// 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusBadRequest, err)
-// 		return
-// 	}
-// 	post := models.Post{}
+func (s *Server) UpdatePost(c *gin.Context) {
+	var param UpdatePostParam
+	urlId := c.Param("id")
+	id := cast.ToInt(urlId)
+	if id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "url参数错误"})
+		return
+	}
+	if err := c.ShouldBind(&param); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	updateData := map[string]interface{}{
+		"title":   param.Title,
+		"desc":    param.Desc,
+		"content": param.Content,
+	}
+	result, err := s.PostService.UpdateById(id, updateData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": result})
+}
 
-// 	postReceived, err := post.FindPostByID(server.DB, pid)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusInternalServerError, err)
-// 		return
-// 	}
-// 	responses.JSON(w, http.StatusOK, postReceived)
-// }
+type DeletePostParam struct {
+	Id int `uri:"id"`
+}
 
-// func (s *Server) UpdatePost(w http.ResponseWriter, r *http.Request) {
-
-// 	vars := mux.Vars(r)
-
-// 	// Check if the post id is valid
-// 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusBadRequest, err)
-// 		return
-// 	}
-
-// 	//CHeck if the auth token is valid and  get the user id from it
-// 	uid, err := auth.ExtractTokenID(r)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-
-// 	// Check if the post exist
-// 	post := models.Post{}
-// 	err = server.DB.Debug().Model(models.Post{}).Where("id = ?", pid).Take(&post).Error
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusNotFound, errors.New("Post not found"))
-// 		return
-// 	}
-
-// 	// If a user attempt to update a post not belonging to him
-// 	if uid != post.AuthorID {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-// 	// Read the data posted
-// 	body, err := ioutil.ReadAll(r.Body)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-
-// 	// Start processing the request data
-// 	postUpdate := models.Post{}
-// 	err = json.Unmarshal(body, &postUpdate)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-
-// 	//Also check if the request user id is equal to the one gotten from token
-// 	if uid != postUpdate.AuthorID {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-
-// 	postUpdate.Prepare()
-// 	err = postUpdate.Validate()
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
-// 		return
-// 	}
-
-// 	postUpdate.ID = post.ID //this is important to tell the model the post id to update, the other update field are set above
-
-// 	postUpdated, err := postUpdate.UpdateAPost(server.DB)
-
-// 	if err != nil {
-// 		formattedError := formaterror.FormatError(err.Error())
-// 		responses.ERROR(w, http.StatusInternalServerError, formattedError)
-// 		return
-// 	}
-// 	responses.JSON(w, http.StatusOK, postUpdated)
-// }
-
-// func (s *Server) DeletePost(w http.ResponseWriter, r *http.Request) {
-
-// 	vars := mux.Vars(r)
-
-// 	// Is a valid post id given to us?
-// 	pid, err := strconv.ParseUint(vars["id"], 10, 64)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusBadRequest, err)
-// 		return
-// 	}
-
-// 	// Is this user authenticated?
-// 	uid, err := auth.ExtractTokenID(r)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-
-// 	// Check if the post exist
-// 	post := models.Post{}
-// 	err = server.DB.Debug().Model(models.Post{}).Where("id = ?", pid).Take(&post).Error
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusNotFound, errors.New("Unauthorized"))
-// 		return
-// 	}
-
-// 	// Is the authenticated user, the owner of this post?
-// 	if uid != post.AuthorID {
-// 		responses.ERROR(w, http.StatusUnauthorized, errors.New("Unauthorized"))
-// 		return
-// 	}
-// 	_, err = post.DeleteAPost(server.DB, pid, uid)
-// 	if err != nil {
-// 		responses.ERROR(w, http.StatusBadRequest, err)
-// 		return
-// 	}
-// 	w.Header().Set("Entity", fmt.Sprintf("%d", pid))
-// 	responses.JSON(w, http.StatusNoContent, "")
-// }
+func (s *Server) DeletePost(c *gin.Context) {
+	var param DeletePostParam
+	if err := c.ShouldBindUri(&param); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := s.PostService.DeleteById(param.Id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": ""})
+}

@@ -90,10 +90,10 @@ func (s *Server) initRoutes() {
 
 		//Posts routes
 		g.GET("/posts/:id", s.GetPost)
-		// g.POST("/posts", s.CreatePost)
-		// g.GET("/posts", s.GetPosts)
-		// g.PUT("/posts/:id", s.UpdatePost)
-		// g.DELETE("/posts/:id", s.DeletePost)
+		g.GET("/posts", s.GetPosts)
+		g.POST("/posts", s.CreatePost)
+		g.PUT("/posts/:id", s.UpdatePost)
+		g.DELETE("/posts/:id", s.DeletePost)
 	}
 	s.Router = router
 }
