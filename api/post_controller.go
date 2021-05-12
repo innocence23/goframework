@@ -3,20 +3,21 @@ package api
 import (
 	"fmt"
 	"goframework/model"
+	"goframework/util"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/cast"
 )
 
-type GetPostParam struct {
-	Id int `uri:"id"`
+type PostIdParam struct {
+	Id int `uri:"id" binding:"required,gt=0" label:"ID"`
 }
 
 func (s *Server) GetPost(c *gin.Context) {
-	var param GetPostParam
+	var param PostIdParam
 	if err := c.ShouldBindUri(&param); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 	result, err := s.PostService.GetById(param.Id)
@@ -28,17 +29,18 @@ func (s *Server) GetPost(c *gin.Context) {
 }
 
 type GetPostsParam struct {
-	Offset int `form:"offset"`
-	Limit  int `form:"limit"`
+	Offset *int `form:"offset" binding:"required,gte=0" label:"偏移量"` //使用指针可以解决required 传0的情况
+	Limit  int  `form:"limit" binding:"required,gt=0" label:"每页个数"`
 }
 
 func (s *Server) GetPosts(c *gin.Context) {
 	var param GetPostsParam
 	if err := c.ShouldBind(&param); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
-	result, err := s.PostService.GetByPage(param.Limit, param.Offset)
+	result, err := s.PostService.GetByPage(param.Limit, *param.Offset)
 	fmt.Println(result, err)
 
 	if err != nil {
@@ -49,15 +51,16 @@ func (s *Server) GetPosts(c *gin.Context) {
 }
 
 type CreatePostParam struct {
-	Title   string `json:"title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
+	Title   string `json:"title" binding:"required" label:"标题"`
+	Desc    string `json:"desc" binding:"required" label:"描述"`
+	Content string `json:"content" binding:"required" label:"内容"`
 }
 
 func (s *Server) CreatePost(c *gin.Context) {
 	var param CreatePostParam
 	if err := c.ShouldBind(&param); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 	post := &model.Post{
@@ -75,21 +78,22 @@ func (s *Server) CreatePost(c *gin.Context) {
 }
 
 type UpdatePostParam struct {
-	Title   string `json:"title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
+	Title   string `json:"title" binding:"required" label:"标题"`
+	Desc    string `json:"desc" binding:"required" label:"描述"`
+	Content string `json:"content" binding:"required" label:"内容"`
 }
 
 func (s *Server) UpdatePost(c *gin.Context) {
-	var param UpdatePostParam
-	urlId := c.Param("id")
-	id := cast.ToInt(urlId)
-	if id == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "url参数错误"})
+	var paramId PostIdParam
+	if err := c.ShouldBindUri(&paramId); err != nil {
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
+	var param UpdatePostParam
 	if err := c.ShouldBind(&param); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
 	updateData := map[string]interface{}{
@@ -97,7 +101,7 @@ func (s *Server) UpdatePost(c *gin.Context) {
 		"desc":    param.Desc,
 		"content": param.Content,
 	}
-	result, err := s.PostService.UpdateById(id, updateData)
+	result, err := s.PostService.UpdateById(paramId.Id, updateData)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -105,17 +109,14 @@ func (s *Server) UpdatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-type DeletePostParam struct {
-	Id int `uri:"id"`
-}
-
 func (s *Server) DeletePost(c *gin.Context) {
-	var param DeletePostParam
-	if err := c.ShouldBindUri(&param); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	var paramId PostIdParam
+	if err := c.ShouldBindUri(&paramId); err != nil {
+		msg := util.ValidateParams(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
 		return
 	}
-	if err := s.PostService.DeleteById(param.Id); err != nil {
+	if err := s.PostService.DeleteById(paramId.Id); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
