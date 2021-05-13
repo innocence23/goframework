@@ -22,9 +22,11 @@
 ### response
 - success error response
 
-### todo
-- log
+### 注册登陆登出
 - password
 - jwt token
+
+### todo
+- log
 - wire
 - test

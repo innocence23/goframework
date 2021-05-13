@@ -3,6 +3,7 @@ package api
 import (
 	"goframework/lib"
 	"goframework/model"
+	"goframework/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,12 +36,19 @@ func (s *Server) Register(c *gin.Context) (data interface{}, error *lib.Error) {
 		Email:    param.Email,
 		Password: param.Password,
 	}
-	reg, err := s.UserService.Register(user)
+	user, err := s.UserService.Register(user)
 	if err != nil {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	data = reg //todo 要返回token
+	token, err := util.CreateToken(int(user.ID))
+	if err != nil {
+		error = lib.NewInternalError(err.Error())
+		return
+	}
+	data = map[string]string{
+		"token": token,
+	}
 	return
 }
 
@@ -60,19 +68,19 @@ func (s *Server) Login(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	data = user //todo 要返回token
+	token, err := util.CreateToken(int(user.ID))
+	if err != nil {
+		error = lib.NewInternalError(err.Error())
+		return
+	}
+	data = map[string]string{
+		"token": token,
+	}
 	return
 }
 
 func (s *Server) Logout(c *gin.Context) (data interface{}, error *lib.Error) {
-	var paramId PostIdParam
-	if err := c.ShouldBindUri(&paramId); err != nil {
-		error = lib.NewAutoParamError(err)
-		return
-	}
-	if err := s.PostService.DeleteById(*paramId.Id); err != nil {
-		error = lib.NewNotFoundError(err.Error())
-		return
-	}
+	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjA4OTY2NzAsImlkIjo1fQ.SzGEjRkYdVhnbweObtaNs-Gy39dUUItqAnhU3Cm2ejM"
+
 	return
 }
