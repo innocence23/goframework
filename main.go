@@ -16,7 +16,6 @@ func main() {
 	//验证中文
 	util.ValidateInit()
 
-
 	x := api.NewServer(lib.DB)
 	x.Run(lib.Config.ServerAddress)
 }

@@ -10,6 +10,7 @@ const (
 	ParamError      int = 1002
 	BadRequestError int = 1003
 	NotFoundError   int = 1004
+	ValidTokenError int = 1005
 )
 
 //自定义api错误结构体
@@ -51,6 +52,13 @@ func NewInternalError(msg string) *Error {
 func NewNotFoundError(msg string) *Error {
 	return &Error{
 		Code:    NotFoundError,
+		Message: msg,
+	}
+}
+
+func NewValidTokenError(msg string) *Error {
+	return &Error{
+		Code:    ValidTokenError,
 		Message: msg,
 	}
 }

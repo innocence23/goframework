@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"goframework/respository"
 	"goframework/service"
 	"log"
@@ -34,6 +33,5 @@ func NewServer(db *gorm.DB) *Server {
 }
 
 func (s *Server) Run(addr string) {
-	fmt.Println(addr)
 	log.Fatal(s.Router.Run(addr))
 }

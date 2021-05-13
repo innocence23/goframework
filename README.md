@@ -26,6 +26,13 @@
 - password
 - jwt token
 
+
+### jwt redis
+- redis
+- jwt middleware
+- redis jwt logout
+
+
 ### todo
 - log
 - wire

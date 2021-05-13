@@ -9,7 +9,7 @@ import (
 
 type WrapperHandle func(c *gin.Context) (interface{}, *lib.Error)
 
-func ErrorWrapper(handle WrapperHandle) gin.HandlerFunc {
+func errorWrapper(handle WrapperHandle) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, err := handle(c)
 		if err != nil {

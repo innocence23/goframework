@@ -3,7 +3,6 @@ package api
 import (
 	"goframework/lib"
 	"goframework/model"
-	"goframework/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +40,7 @@ func (s *Server) Register(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	token, err := util.CreateToken(int(user.ID))
+	token, err := lib.CreateToken(int(user.ID))
 	if err != nil {
 		error = lib.NewInternalError(err.Error())
 		return
@@ -68,7 +67,7 @@ func (s *Server) Login(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	token, err := util.CreateToken(int(user.ID))
+	token, err := lib.CreateToken(int(user.ID))
 	if err != nil {
 		error = lib.NewInternalError(err.Error())
 		return

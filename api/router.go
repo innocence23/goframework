@@ -1,6 +1,8 @@
 package api
 
 import (
+	"goframework/api/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,22 +12,22 @@ func (s *Server) initRoutes() {
 	{
 		g.GET("/", s.Home)
 
-		// Login Route
-		// g.POST("/login", s.Login)
-
 		//注册登陆
-		g.POST("/register",  ErrorWrapper(s.Register))
-		g.POST("/login",  ErrorWrapper(s.Login))
-		g.POST("/logout",  ErrorWrapper(s.Logout))
+		g.POST("/register", errorWrapper(s.Register))
+		g.POST("/login", errorWrapper(s.Login))
+		g.POST("/logout", errorWrapper(s.Logout))
+		gw := g.Use(middleware.JWTAuth())
+		{
+			gw.GET("/profile", errorWrapper(s.Profile))
 
-		g.GET("/profile", ErrorWrapper(s.Profile))
+			//Posts routes
+			gw.GET("/posts/:id", errorWrapper(s.GetPost))
+			gw.GET("/posts", errorWrapper(s.GetPosts))
+			gw.POST("/posts", errorWrapper(s.CreatePost))
+			gw.PUT("/posts/:id", errorWrapper(s.UpdatePost))
+			gw.DELETE("/posts/:id", errorWrapper(s.DeletePost))
+		}
 
-		//Posts routes
-		g.GET("/posts/:id", ErrorWrapper(s.GetPost))
-		g.GET("/posts", ErrorWrapper(s.GetPosts))
-		g.POST("/posts", ErrorWrapper(s.CreatePost))
-		g.PUT("/posts/:id", ErrorWrapper(s.UpdatePost))
-		g.DELETE("/posts/:id", ErrorWrapper(s.DeletePost))
 	}
 	s.Router = router
 }

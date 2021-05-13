@@ -1,4 +1,4 @@
-package util
+package lib
 
 import (
 	"time"
@@ -6,12 +6,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-const (
-	SecretKey = "243223ffslsfsldfl412fdsfsdf"
-	ExpTime   = time.Minute * 60
-)
-
 func CreateToken(uid int) (string, error) {
+	SecretKey := Config.TokenSecretKey
+	ExpTime := Config.TokenDuration
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  uid,
 		"exp": time.Now().Add(ExpTime).Unix(),
@@ -24,6 +21,7 @@ func CreateToken(uid int) (string, error) {
 }
 
 func ParseToken(tokenString string) (jwt.MapClaims, error) {
+	SecretKey := Config.TokenSecretKey
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil
 	})
