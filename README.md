@@ -20,12 +20,10 @@
 - 中文汉化 util/
 
 ### response
-- success error
+- success error response
 
 ### todo
 - log
-- response
-- error
 - password
 - jwt token
 - wire

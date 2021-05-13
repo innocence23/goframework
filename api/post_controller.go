@@ -17,7 +17,7 @@ func (s *Server) GetPost(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewAutoParamError(err)
 		return
 	}
-	data, err := s.PostService.GetById(*param.Id)
+	data, err := s.PostService.FindById(*param.Id)
 	if err != nil {
 		error = lib.NewNotFoundError(err.Error())
 		return
@@ -37,7 +37,7 @@ func (s *Server) GetPosts(c *gin.Context) (data interface{}, error *lib.Error) {
 
 		return
 	}
-	data, err := s.PostService.GetByPage(param.Limit, *param.Offset)
+	data, err := s.PostService.FindByPage(param.Limit, *param.Offset)
 	if err != nil {
 		error = lib.NewNotFoundError(err.Error())
 		return

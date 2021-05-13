@@ -16,6 +16,7 @@ type Server struct {
 	DB          *gorm.DB
 	Router      *gin.Engine
 	PostService *service.PostService
+	UserService *service.UserService
 }
 
 func NewServer(db *gorm.DB) *Server {
@@ -24,6 +25,9 @@ func NewServer(db *gorm.DB) *Server {
 	}
 	server.PostService = &service.PostService{
 		PostRespository: &respository.PostRespository{},
+	}
+	server.UserService = &service.UserService{
+		UserRespository: &respository.UserRespository{},
 	}
 	server.initRoutes()
 	return server

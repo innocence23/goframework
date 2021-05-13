@@ -13,12 +13,12 @@ func (s *Server) initRoutes() {
 		// Login Route
 		// g.POST("/login", s.Login)
 
-		//Users routes
-		// g.POST("/users", s.CreateUser)
-		// g.GET("/users", s.GetUsers)
-		// g.GET("/users/:id", s.GetUser)
-		// g.PUT("/users/:id", s.UpdateUser)
-		// g.DELETE("/users/:id", s.DeleteUser)
+		//注册登陆
+		g.POST("/register",  ErrorWrapper(s.Register))
+		g.POST("/login",  ErrorWrapper(s.Login))
+		g.POST("/logout",  ErrorWrapper(s.Logout))
+
+		g.GET("/profile", ErrorWrapper(s.Profile))
 
 		//Posts routes
 		g.GET("/posts/:id", ErrorWrapper(s.GetPost))

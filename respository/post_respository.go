@@ -8,13 +8,13 @@ import (
 type PostRespository struct {
 }
 
-func (p *PostRespository) GetById(id int) (*model.Post, error) {
+func (p *PostRespository) FindById(id int) (*model.Post, error) {
 	post := &model.Post{}
 	res := lib.DB.First(&post, id)
 	return post, res.Error
 }
 
-func (p *PostRespository) GetByPage(limit, offset int) ([]model.Post, error) {
+func (p *PostRespository) FindByPage(limit, offset int) ([]model.Post, error) {
 	posts := make([]model.Post, 0)
 	res := lib.DB.Limit(limit).Offset(offset).Find(&posts)
 	return posts, res.Error
