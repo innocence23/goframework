@@ -1,31 +1,28 @@
 package api
 
 import (
-	"fmt"
+	"goframework/lib"
 	"goframework/model"
-	"goframework/util"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type PostIdParam struct {
-	Id int `uri:"id" binding:"required,gt=0" label:"ID"`
+	Id *int `uri:"id" binding:"required,gt=0" label:"ID"`
 }
 
-func (s *Server) GetPost(c *gin.Context) {
+func (s *Server) GetPost(c *gin.Context) (data interface{}, error *lib.Error) {
 	var param PostIdParam
 	if err := c.ShouldBindUri(&param); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		error = lib.NewAutoParamError(err)
 		return
 	}
-	result, err := s.PostService.GetById(param.Id)
+	data, err := s.PostService.GetById(*param.Id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		error = lib.NewNotFoundError(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	return
 }
 
 type GetPostsParam struct {
@@ -33,21 +30,19 @@ type GetPostsParam struct {
 	Limit  int  `form:"limit" binding:"required,gt=0" label:"每页个数"`
 }
 
-func (s *Server) GetPosts(c *gin.Context) {
+func (s *Server) GetPosts(c *gin.Context) (data interface{}, error *lib.Error) {
 	var param GetPostsParam
 	if err := c.ShouldBind(&param); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
-		return
-	}
-	result, err := s.PostService.GetByPage(param.Limit, *param.Offset)
-	fmt.Println(result, err)
+		error = lib.NewAutoParamError(err)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	data, err := s.PostService.GetByPage(param.Limit, *param.Offset)
+	if err != nil {
+		error = lib.NewNotFoundError(err.Error())
+		return
+	}
+	return
 }
 
 type CreatePostParam struct {
@@ -56,11 +51,10 @@ type CreatePostParam struct {
 	Content string `json:"content" binding:"required" label:"内容"`
 }
 
-func (s *Server) CreatePost(c *gin.Context) {
+func (s *Server) CreatePost(c *gin.Context) (data interface{}, error *lib.Error) {
 	var param CreatePostParam
 	if err := c.ShouldBind(&param); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		error = lib.NewAutoParamError(err)
 		return
 	}
 	post := &model.Post{
@@ -69,12 +63,12 @@ func (s *Server) CreatePost(c *gin.Context) {
 		Content: param.Content,
 		Status:  1,
 	}
-	result, err := s.PostService.Create(post)
+	data, err := s.PostService.Create(post)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		error = lib.NewInternalError(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	return
 }
 
 type UpdatePostParam struct {
@@ -83,17 +77,15 @@ type UpdatePostParam struct {
 	Content string `json:"content" binding:"required" label:"内容"`
 }
 
-func (s *Server) UpdatePost(c *gin.Context) {
+func (s *Server) UpdatePost(c *gin.Context) (data interface{}, error *lib.Error) {
 	var paramId PostIdParam
 	if err := c.ShouldBindUri(&paramId); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		error = lib.NewAutoParamError(err)
 		return
 	}
 	var param UpdatePostParam
 	if err := c.ShouldBind(&param); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		error = lib.NewAutoParamError(err)
 		return
 	}
 	updateData := map[string]interface{}{
@@ -101,24 +93,23 @@ func (s *Server) UpdatePost(c *gin.Context) {
 		"desc":    param.Desc,
 		"content": param.Content,
 	}
-	result, err := s.PostService.UpdateById(paramId.Id, updateData)
+	data, err := s.PostService.UpdateById(*paramId.Id, updateData)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		error = lib.NewInternalError(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	return
 }
 
-func (s *Server) DeletePost(c *gin.Context) {
+func (s *Server) DeletePost(c *gin.Context) (data interface{}, error *lib.Error) {
 	var paramId PostIdParam
 	if err := c.ShouldBindUri(&paramId); err != nil {
-		msg := util.ValidateParams(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": msg})
+		error = lib.NewAutoParamError(err)
 		return
 	}
-	if err := s.PostService.DeleteById(paramId.Id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := s.PostService.DeleteById(*paramId.Id); err != nil {
+		error = lib.NewNotFoundError(err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": ""})
+	return
 }

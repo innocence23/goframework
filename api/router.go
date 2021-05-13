@@ -21,11 +21,11 @@ func (s *Server) initRoutes() {
 		// g.DELETE("/users/:id", s.DeleteUser)
 
 		//Posts routes
-		g.GET("/posts/:id", s.GetPost)
-		g.GET("/posts", s.GetPosts)
-		g.POST("/posts", s.CreatePost)
-		g.PUT("/posts/:id", s.UpdatePost)
-		g.DELETE("/posts/:id", s.DeletePost)
+		g.GET("/posts/:id", ErrorWrapper(s.GetPost))
+		g.GET("/posts", ErrorWrapper(s.GetPosts))
+		g.POST("/posts", ErrorWrapper(s.CreatePost))
+		g.PUT("/posts/:id", ErrorWrapper(s.UpdatePost))
+		g.DELETE("/posts/:id", ErrorWrapper(s.DeletePost))
 	}
 	s.Router = router
 }
