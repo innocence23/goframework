@@ -16,6 +16,7 @@ func (s *Server) initRoutes() {
 		g.POST("/register", errorWrapper(s.Register))
 		g.POST("/login", errorWrapper(s.Login))
 		g.POST("/logout", errorWrapper(s.Logout))
+		g.POST("/refresh_token", errorWrapper(s.RefreshToken))
 		gw := g.Use(middleware.JWTAuth())
 		{
 			gw.GET("/profile", errorWrapper(s.Profile))

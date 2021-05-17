@@ -33,6 +33,16 @@
 - redis jwt logout
 
 
+#todo
+- redis init
+- jwt redis 
+- logout jwt :https://learn.vonage.com/blog/2020/03/13/using-jwt-for-authentication-in-a-golang-application-dr/
+- https://www.nexmo.com/legacy-blog/2020/09/07/using-jwt-for-authentication-in-a-golang-application-dr-2
+- nsq
+- test
+- wire
+- dot
+
 ### todo
 - log
 - wire

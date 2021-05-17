@@ -8,15 +8,17 @@ import (
 )
 
 func (s *Server) Profile(c *gin.Context) (data interface{}, error *lib.Error) {
-	var paramId PostIdParam
-	if err := c.ShouldBindUri(&paramId); err != nil {
-		error = lib.NewAutoParamError(err)
-		return
+	// claims, flag := c.Get("claims")
+	// if flag {
+
+	// }
+	// uid := claims["uid"]
+	uid := 1 //todo
+	data, err := s.UserService.FindById(uid)
+	if err != nil {
+		error = lib.NewInternalError(err.Error())
 	}
-	if err := s.PostService.DeleteById(*paramId.Id); err != nil {
-		error = lib.NewNotFoundError(err.Error())
-		return
-	}
+
 	return
 }
 
@@ -40,13 +42,10 @@ func (s *Server) Register(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	token, err := lib.CreateToken(int(user.ID))
+	data, err = lib.CreateToken(int(user.ID))
 	if err != nil {
 		error = lib.NewInternalError(err.Error())
 		return
-	}
-	data = map[string]string{
-		"token": token,
 	}
 	return
 }
@@ -67,13 +66,10 @@ func (s *Server) Login(c *gin.Context) (data interface{}, error *lib.Error) {
 		error = lib.NewInternalError(err.Error())
 		return
 	}
-	token, err := lib.CreateToken(int(user.ID))
+	data, err = lib.CreateToken(int(user.ID))
 	if err != nil {
 		error = lib.NewInternalError(err.Error())
 		return
-	}
-	data = map[string]string{
-		"token": token,
 	}
 	return
 }
@@ -81,5 +77,23 @@ func (s *Server) Login(c *gin.Context) (data interface{}, error *lib.Error) {
 func (s *Server) Logout(c *gin.Context) (data interface{}, error *lib.Error) {
 	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MjA4OTY2NzAsImlkIjo1fQ.SzGEjRkYdVhnbweObtaNs-Gy39dUUItqAnhU3Cm2ejM"
 
+	return
+}
+
+type RefreshTokenParam struct {
+	RefreshToken string `json:"refresh_token" binding:"required" label:"token"`
+}
+
+func (s *Server) RefreshToken(c *gin.Context) (data interface{}, error *lib.Error) {
+	var param RefreshTokenParam
+	if err := c.ShouldBind(&param); err != nil {
+		error = lib.NewAutoParamError(err)
+		return
+	}
+	data, err := lib.RefreshToken(param.RefreshToken)
+	if err != nil {
+		error = lib.NewInternalError(err.Error())
+		return
+	}
 	return
 }

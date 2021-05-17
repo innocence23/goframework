@@ -13,6 +13,9 @@ func main() {
 	//初始化数据库
 	lib.InitDB()
 
+	//初始化数据库
+	lib.InitCache()
+
 	//验证中文
 	util.ValidateInit()
 

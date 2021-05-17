@@ -8,11 +8,16 @@ import (
 )
 
 type Env struct {
-	DBDriver       string        `mapstructure:"DB_DRIVER"`
-	DBSource       string        `mapstructure:"DB_SOURCE"`
-	ServerAddress  string        `mapstructure:"SERVER_ADDRESS"`
-	TokenSecretKey string        `mapstructure:"TOKEN_SECRET_KEY"`
-	TokenDuration  time.Duration `mapstructure:"TOKEN_DURATION"`
+	DBDriver              string        `mapstructure:"DB_DRIVER"`
+	DBSource              string        `mapstructure:"DB_SOURCE"`
+	ServerAddress         string        `mapstructure:"SERVER_ADDRESS"`
+	TokenSecretKey        string        `mapstructure:"TOKEN_SECRET_KEY"`
+	RefreshTokenSecretKey string        `mapstructure:"REFRESH_TOKEN_SECRET_KEY"`
+	TokenDuration         time.Duration `mapstructure:"TOKEN_DURATION"`
+
+	RedisAddr string `mapstructure:"REDIS_ADDR"`
+	RedisPWD  string `mapstructure:"REDIS_PWD"`
+	RedisDB   int    `mapstructure:"REDIS_DB"`
 }
 
 var Config Env
